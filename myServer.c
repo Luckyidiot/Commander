@@ -1,0 +1,76 @@
+
+
+#include "serverDir/server_function.h"
+#include "serverDir/server_execution.h"
+
+int main(int argc, char** argv){
+    /**
+     * 
+    */
+
+    fd_set bufferFDs, readFDs;
+    int serverSocket, maxFD;
+    int on = 1;
+    FILE* fileExe;
+    
+
+    /**
+     * Start doing the first step :: creating the server
+    */
+    serverSocket = Create_IPv4Server(AF_INET, PORT, "INADDR_ANY", SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    maxFD = serverSocket;
+    printf("serverSocket: %d\n", serverSocket);
+
+    FD_ZERO(&readFDs);
+    FD_SET(serverSocket, &readFDs);
+    ListenEvent(serverSocket, MESSAGE_QUEUE);
+    
+
+    /**
+     * Loop to wait until the next return of select()
+    */
+
+    while (true){
+        bufferFDs = readFDs;
+        if (select(maxFD + 1, &bufferFDs, NULL, NULL, NULL) < 0){
+            perror("SELECT ERROR:");
+            exit(EXIT_FAILURE);
+        }
+        int bufferMax = maxFD;
+        for (int i = 0; i <= bufferMax + 1; i++){
+
+            if (FD_ISSET(i, &bufferFDs)){
+                if (i == serverSocket){
+                    /**
+                     * A new conenction is found, simply accept it without handling it right now
+                     * 
+                     * The first and second parameters of AcceptConnection are for retrieving the address
+                     * of the client. Now we temporarily ignore it since we don't need that info.
+                    */
+                    int bufferSocket = AcceptConnection(NULL, 0, i);
+                    printf("Connection Accepted....\n");
+                    FD_SET(bufferSocket, &readFDs);
+
+                    if (bufferSocket > maxFD){
+                        maxFD = bufferSocket;
+                    }
+                }
+                else {
+                    /**
+                     * The file descriptor is ready to be handle 
+                     * 
+                    */
+
+                    Receive_fileExe(i, "trial_text");
+                    Closing_procedure(i, &maxFD, &readFDs);
+
+                }
+            }
+        }
+    }
+    
+
+    close(serverSocket);
+    return 0;
+
+}
