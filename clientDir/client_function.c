@@ -4,13 +4,10 @@
 void Send_fileExe(int socketfd, const char* fileName){
 
     /**
-     * 1) fileExe opens a binary file
-     * 
+     * 1) fileExe opens ASSEMBLY file
      * 2) Calculate the fileSize
+     * 3) Read and Send constantly to the server until sent bytes are enough
      * 
-     * 3) The entire fileExe will be read into bufferReader
-     * 
-     * 4) The entire bufferReader will be written into file descriptor socket
     */
     FILE* fileExe;
     char bufferReader[BANDWIDTH];
@@ -33,42 +30,42 @@ void Send_fileExe(int socketfd, const char* fileName){
     fseek(fileExe, 0, SEEK_END);
     fileSize = ftell(fileExe);
     fseek(fileExe, 0, SEEK_SET);
-    printf("fileSize is %ld\n", fileSize);
+
     /**
-     * Read the entire target binary file into bufferReader
+     * Read the file to bufferReader and send it
      * 
+     * This protocol is still still unreliable cannot be used in practice, but the idea is correct and
+     * still work in testing scope.
      * 
+     * It needs the following:
+     *  # Confirm that the total sent bytes are equal to the size of the file
+     *  # Confirm that in case fread() reads successfully, it reads [BANDWIDTH] bytes and the remainding bytes
+     *    in the last turn.
+     *  # Confirm that in the last turn of send, when send() sent successfully, it sent the exact number of
+     *    remainding bytes before exit the loop.
     */
-    int readBytes = fread(bufferReader, sizeof(char), fileSize, fileExe);
-    if (readBytes != fileSize){
-        //Shall the fread not read enough all the file, it will return error.
-        fprintf(stderr, "Execution file received is incorrect, only %d was read\n while we have %ld\n", readBytes, fileSize);
-        exit(EXIT_FAILURE);
-    }
-    printf("Reading is successful\n");
-    
-    /**
-     * We will send the entire file at once after reading all of it into bufferReader
-     * 
-     * 
-    */
-    int sentBytes;
-    if ((sentBytes = send(socketfd, bufferReader, fileSize, 0)) >= 0){
-        /**
-         * If send() fails in sending but not enough bytes, it will print error message and exit.
-         * 
-         * 
-        */
-        if (sentBytes != fileSize){
-            fprintf(stderr, "ERROR: Sent bytes are not enough\n");
+    while (1){
+        int readBytes;
+        int sentBytes;
+
+        if ((readBytes = fread(bufferReader, 1, BANDWIDTH, fileExe)) < 0){
+            //Shall the fread not read enough all the file, it will return error.
+            fprintf(stderr, "Execution file received is incorrect, only %d was read\n while we have %ld\n", readBytes, fileSize);
             exit(EXIT_FAILURE);
         }
+
+        if ((sentBytes = send(socketfd, bufferReader, BANDWIDTH, 0)) >= 0) {
+            if (sentBytes < BANDWIDTH){
+                break;
+            }
+        }
+        else {
+            perror("Sending ERROR:");
+            exit(EXIT_FAILURE);
+        }
+
     }
-    else {
-        perror("Failed to send binary file:");
-        exit(EXIT_FAILURE);
-    }
-    
+
     /**
      * Close the file after finish sending
      * 
