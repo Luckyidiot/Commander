@@ -126,8 +126,29 @@ void Receive_fileExe(int socketfd, const char* fileName){
     }
 
     /**
-     * Get the data sent by the client into the bufferWriter
+     * Get data from file descriptor and read it to a local file
     */
+
+    while (1){
+        int receivedBytes;
+        int writtenBytes;
+
+        if ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) >= 0){
+            
+        }
+        else {
+            perror("Receiving ERROR:");
+            exit(EXIT_FAILURE);
+        }
+
+        if ((writtenBytes = fwrite(bufferWriter, 1, BANDWIDTH, fileExe)) >= 0){
+            if (writtenBytes < BANDWIDTH){
+                break;
+            }
+        }
+
+    }
+
     if ((readBytes = recv(socketfd, bufferWriter, 159, 0)) >= 0){
         printf("%ld was read\n", readBytes);
         if (readBytes != 9){
