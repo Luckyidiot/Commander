@@ -115,13 +115,13 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
 }
 
 void Receive_fileExe(int socketfd, const char* fileName){
-    size_t readBytes;
+    size_t Bytes = 0;
     char bufferWriter[BANDWIDTH];
     off_t fileSize;
-    FILE* fileExe;
+    int fileExe;
 
-    if ((fileExe = fopen(fileName, "wb")) == NULL){
-        fprintf(stderr, "Cannot open the instruction file to write to\n");
+    if ((fileExe = open(fileName, O_WRONLY)) < 0){
+        perror("Cannot open the instruction file to write to\n");
         exit(EXIT_FAILURE);
     }
 
@@ -129,60 +129,18 @@ void Receive_fileExe(int socketfd, const char* fileName){
      * Get data from file descriptor and read it to a local file
     */
 
-    while (1){
-        int receivedBytes;
+    while (recv(socketfd, bufferWriter, 17, 0) > 0){
         int writtenBytes;
 
-        if ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) >= 0){
-            
-        }
-        else {
-            perror("Receiving ERROR:");
+        if ((writtenBytes = write(fileExe, bufferWriter, 17)) < 0){
+            perror("ERROR: Writing into fileExe failed:");
             exit(EXIT_FAILURE);
         }
-
-        if ((writtenBytes = fwrite(bufferWriter, 1, BANDWIDTH, fileExe)) >= 0){
-            if (writtenBytes < BANDWIDTH){
-                break;
-            }
-        }
-
+        Bytes += writtenBytes;
     }
+    printf("%ld bytes were written to the file\n", Bytes);
 
-    if ((readBytes = recv(socketfd, bufferWriter, 159, 0)) >= 0){
-        printf("%ld was read\n", readBytes);
-        if (readBytes != 9){
-            fprintf(stderr, "ERROR: Received bytes are not enough\n");
-            exit(EXIT_FAILURE);
-        }
-    }
-    else {
-        // recv() has a fatal error
-        perror("READ MESSAGE: ");
-        exit(EXIT_FAILURE);
-    }
-    
-    int a;
-    if ((a = fwrite(bufferWriter, 1, readBytes, fileExe)) != 9){
-        fprintf(stderr, "Execution file received is incorrect\n");
-        exit(EXIT_FAILURE);
-    }
-
-    fclose (fileExe);
-
-    printf("Written bytes is %d\n", a);
-    printf("Check the newly created file\n");
-    FILE* trialExe = fopen("trial_text", "r");
-    if (trialExe == NULL){
-        fprintf(stderr, "Cannot open the instruction file to read to\n");
-        exit(EXIT_FAILURE);
-    }
-    fseek(trialExe, 0, SEEK_END);
-    fileSize = ftell(trialExe);
-    printf("The size of the newly created file is: %ld\n", fileSize);
-
-    fclose(trialExe);
-
+    close (fileExe);
 }
 
 void Write_Message(int socketfd, char* message){
