@@ -115,9 +115,8 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
 }
 
 void Receive_fileExe(int socketfd, const char* fileName){
-    size_t Bytes = 0;
+    size_t receivedBytes = 0;
     char bufferWriter[BANDWIDTH];
-    off_t fileSize;
     int fileExe;
 
     if ((fileExe = open(fileName, O_WRONLY)) < 0){
@@ -129,16 +128,15 @@ void Receive_fileExe(int socketfd, const char* fileName){
      * Get data from file descriptor and read it to a local file
     */
 
-    while (recv(socketfd, bufferWriter, 17, 0) > 0){
+    while ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) > 0){
         int writtenBytes;
 
-        if ((writtenBytes = write(fileExe, bufferWriter, 17)) < 0){
+        if ((writtenBytes = write(fileExe, bufferWriter, receivedBytes)) < 0){
             perror("ERROR: Writing into fileExe failed:");
             exit(EXIT_FAILURE);
         }
-        Bytes += writtenBytes;
     }
-    printf("%ld bytes were written to the file\n", Bytes);
+
 
     close (fileExe);
 }

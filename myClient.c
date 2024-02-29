@@ -22,7 +22,7 @@ int main(int argc, char** argv){
     
     Connect_Server(socketfd, serverAddress);
 
-    Send_fileExe(socketfd, "sample_text");
+    Send_fileExe(socketfd, "sampleExe");
 
     close(socketfd);
     return 0;
