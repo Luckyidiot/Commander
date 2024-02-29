@@ -1,5 +1,5 @@
 #include "server_function.h"
-
+#include <sys/ioctl.h>
 
 void SetSocket_REUSE(int sockfd, int level, int optname, const void* optval, socklen_t optlen){
 

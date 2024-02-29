@@ -36,7 +36,9 @@
     #include <arpa/inet.h>
     #include <netinet/in.h>
     #include <sys/select.h>
-    #include <sys/ioctl.h>
+    #include <sys/sendfile.h>
+    #include <fcntl.h>
+    
     
 #endif
 
