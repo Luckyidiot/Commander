@@ -13,7 +13,6 @@ int main(int argc, char** argv){
 
     int socketfd;
     struct sockaddr_in serverAddress;
-    FILE* fileExe;
 
 
     socketfd = IPv4_SocketCreate();

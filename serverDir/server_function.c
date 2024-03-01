@@ -112,6 +112,8 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
             *maxFD -= 1;
         }
     }
+
+    printf("Handled successfully socket %d\n", fd);
 }
 
 void Receive_fileExe(int socketfd, const char* fileName){

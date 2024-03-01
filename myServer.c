@@ -5,13 +5,15 @@
 
 int main(int argc, char** argv){
     /**
+     * The Server will accept the connection and handle the operation required
+     * by the client via the binary file received. 
+     * 
      * 
     */
 
     fd_set bufferFDs, readFDs;
     int serverSocket, maxFD;
     int on = 1;
-    FILE* fileExe;
     
 
     /**
@@ -42,7 +44,9 @@ int main(int argc, char** argv){
             if (FD_ISSET(i, &bufferFDs)){
                 if (i == serverSocket){
                     /**
-                     * A new conenction is found, simply accept it without handling it right now
+                     * A new conenction is found
+                     * 
+                     * Accept it without Handling
                      * 
                      * The first and second parameters of AcceptConnection are for retrieving the address
                      * of the client. Now we temporarily ignore it since we don't need that info.
