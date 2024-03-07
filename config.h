@@ -14,7 +14,7 @@
     #include <stdbool.h>
 
     #define PORT          6309
-    #define No 4
+
     /**
      * If the BANDWIDTH is changed to a value more than 256, the data type of the
      * remainder in the sending and receiving protocol must be changed too. 
