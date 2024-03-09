@@ -1,5 +1,6 @@
 #include "server_function.h"
 #include <sys/ioctl.h>
+#include <time.h>
 
 void SetSocket_REUSE(int sockfd, int level, int optname, const void* optval, socklen_t optlen){
 
@@ -116,6 +117,15 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     printf("Handled successfully socket %d\n", fd);
 }
 
+void File_Naming(char* fileName){
+    /**
+     * Each client will have an execution file
+     * Those files will be named using their IP address and Date & Time to ensure the uniqueness
+    */
+    time_t rawTime = time(NULL);
+    
+}
+
 void Receive_fileExe(int socketfd, const char* fileName){
     size_t receivedBytes = 0;
     char bufferWriter[BANDWIDTH];
@@ -142,6 +152,7 @@ void Receive_fileExe(int socketfd, const char* fileName){
 
     close (fileExe);
 }
+
 
 void Write_Message(int socketfd, char* message){
     if (send(socketfd, message, (strlen(message) + 1), 0) < 0){
