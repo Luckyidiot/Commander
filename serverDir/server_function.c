@@ -117,14 +117,16 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     printf("Handled successfully socket %d\n", fd);
 }
 
-void File_Naming(char* fileName){
+void File_Naming(char* filename, const char* IPaddr){
     /**
      * Each client will have an execution file
      * Those files will be named using their IP address and Date & Time to ensure the uniqueness
     */
     time_t rawTime = time(NULL);
+    sprintf(filename, "%s_%ld", IPaddr, rawTime);
     
 }
+
 
 void Receive_fileExe(int socketfd, const char* fileName){
     size_t receivedBytes = 0;
