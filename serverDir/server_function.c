@@ -69,12 +69,21 @@ int Create_IPv4Server(short sin_family, int port, char* address, int level, int 
     return socketfd;
 }
 
-void FileExe_naming(char* filename, const char* IPaddr){
+void FileExe_naming(char* filename, int socketfd){
     /**
      * Each client will have an execution file
      * Those files will be named using their IP address and Date & Time to ensure the uniqueness
+     * 
+     * The IPaddr has the format of AAA.BBB.CCC.DDD at most so it needs 15 elements.
     */
+    char IPaddr[15];
     time_t rawTime = time(NULL);
+    struct sockaddr_in clientIP;
+    socklen_t clientIP_size;
+    
+
+    getpeername(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
+    inet_ntop(AF_INET, &clientIP.sin_addr, IPaddr, 15);
     sprintf(filename, "%s_%ld", IPaddr, rawTime);
     
 }
@@ -99,10 +108,10 @@ int AcceptConnection(int socketfd){
      * is reliable, othewise the connection will be suspended.
     */
 
-    struct sockaddr_in* clientIP;
+    struct sockaddr_in clientIP;
     socklen_t clientIP_size = sizeof(clientIP);
 
-    int buffer_socketfd = accept(socketfd, (struct sockaddr*) clientIP, &clientIP_size);
+    int buffer_socketfd = accept(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
     if (buffer_socketfd < 0){
         perror("ACCEPT: ");
         exit(EXIT_FAILURE);
@@ -137,6 +146,11 @@ void Receive_fileExe(int socketfd, const char* fileName){
     size_t receivedBytes = 0;
     char bufferWriter[BANDWIDTH];
     int fileExe;
+    struct sockaddr_in clientIP;
+    socklen_t clientIP_size = sizeof(clientIP);
+
+
+
 
     if ((fileExe = open(fileName, O_WRONLY)) < 0){
         perror("Cannot open the instruction file to write to\n");
