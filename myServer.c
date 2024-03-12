@@ -51,7 +51,7 @@ int main(int argc, char** argv){
                      * The first and second parameters of AcceptConnection are for retrieving the address
                      * of the client. Now we temporarily ignore it since we don't need that info.
                     */
-                    int bufferSocket = AcceptConnection(NULL, 0, i);
+                    int bufferSocket = AcceptConnection(i);
                     printf("Connection Accepted....\n");
                     FD_SET(bufferSocket, &readFDs);
 
@@ -66,7 +66,9 @@ int main(int argc, char** argv){
                     */
 
                     Receive_fileExe(i, "trial_text");
-                    Closing_procedure(i, &maxFD, &readFDs);
+
+                    
+                    //Closing_procedure(i, &maxFD, &readFDs);
 
                 }
             }

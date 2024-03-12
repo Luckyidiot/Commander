@@ -69,6 +69,16 @@ int Create_IPv4Server(short sin_family, int port, char* address, int level, int 
     return socketfd;
 }
 
+void FileExe_naming(char* filename, const char* IPaddr){
+    /**
+     * Each client will have an execution file
+     * Those files will be named using their IP address and Date & Time to ensure the uniqueness
+    */
+    time_t rawTime = time(NULL);
+    sprintf(filename, "%s_%ld", IPaddr, rawTime);
+    
+}
+
 void ListenEvent(int socketfd, int queueLength){
     //printf("Listening...\n");
     if (listen(socketfd, queueLength) < 0){
@@ -79,16 +89,20 @@ void ListenEvent(int socketfd, int queueLength){
     printf("LISTENING........\n");
 }
 
-int AcceptConnection(struct sockaddr_in* clientAddress, socklen_t clientAddressSize, int socketfd){
+int AcceptConnection(int socketfd){
 
     /**
-     * Because accept() requires a pointer to the size of cliendAddress so we need to take that
-     * as a parameter.
      * 
-     * Implicitly understand that clientAddressSize = sizeof(clientAddress)
+     * This function accepts the connection request from the client
+     * 
+     * clientIP is now temporarily not used, but its aim is to consider if the connection 
+     * is reliable, othewise the connection will be suspended.
     */
 
-    int buffer_socketfd = accept(socketfd, (struct sockaddr*) clientAddress, &clientAddressSize);
+    struct sockaddr_in* clientIP;
+    socklen_t clientIP_size = sizeof(clientIP);
+
+    int buffer_socketfd = accept(socketfd, (struct sockaddr*) clientIP, &clientIP_size);
     if (buffer_socketfd < 0){
         perror("ACCEPT: ");
         exit(EXIT_FAILURE);
@@ -117,15 +131,6 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     printf("Handled successfully socket %d\n", fd);
 }
 
-void File_Naming(char* filename, const char* IPaddr){
-    /**
-     * Each client will have an execution file
-     * Those files will be named using their IP address and Date & Time to ensure the uniqueness
-    */
-    time_t rawTime = time(NULL);
-    sprintf(filename, "%s_%ld", IPaddr, rawTime);
-    
-}
 
 
 void Receive_fileExe(int socketfd, const char* fileName){
