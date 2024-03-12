@@ -81,7 +81,7 @@ void FileExe_naming(char* filename, int socketfd){
     struct sockaddr_in clientIP;
     socklen_t clientIP_size;
     
-
+    memcpy(IPaddr, "\0", 15);
     getpeername(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
     inet_ntop(AF_INET, &clientIP.sin_addr, IPaddr, 15);
     sprintf(filename, "%s_%ld", IPaddr, rawTime);
