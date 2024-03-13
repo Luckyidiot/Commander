@@ -1,4 +1,4 @@
-FOLDER: fileExe
+The execution file is now named automatically based on the IP and Date&Time
+The received instruction file can be executed well
 
-    Contain all the execution files that clients send waiting to be executed.
-    Once the server stops, those files are also deleted.
+Next step: Implement the "chmod +x <filename>" because the raw received file is unabled to execute.

@@ -65,10 +65,10 @@ int main(int argc, char** argv){
                      * 
                     */
 
-                    Receive_fileExe(i, "trial_text");
+                    Receive_fileExe(i);
 
                     
-                    //Closing_procedure(i, &maxFD, &readFDs);
+                    Closing_procedure(i, &maxFD, &readFDs);
 
                 }
             }

@@ -18,14 +18,14 @@ int Create_IPv4Server(short, int, char*, int, int, const void*, socklen_t);
  * 
  * These functions exclusively belong to the server-side
 */
-void FileExe_naming(char*, const char*);
+void FileExe_naming(char*, int);
 void BindAddr(int, struct sockaddr_in);
 void ListenEvent(int, int);
 int AcceptConnection(int);
 void Closing_procedure(int, int*, fd_set*);
 
 
-void Receive_fileExe(int, const char*);
+void Receive_fileExe(int);
 void Write_Message(int, char*);
 
 

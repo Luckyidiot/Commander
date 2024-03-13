@@ -81,10 +81,10 @@ void FileExe_naming(char* filename, int socketfd){
     struct sockaddr_in clientIP;
     socklen_t clientIP_size;
     
-    memcpy(IPaddr, "\0", 15);
+    memset(IPaddr, 0, sizeof(IPaddr));
     getpeername(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
     inet_ntop(AF_INET, &clientIP.sin_addr, IPaddr, 15);
-    sprintf(filename, "%s_%ld", IPaddr, rawTime);
+    sprintf(filename, "fileExe/%s_%ld", IPaddr, rawTime);
     
 }
 
@@ -142,18 +142,42 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
 
 
 
-void Receive_fileExe(int socketfd, const char* fileName){
+void Receive_fileExe(int socketfd){
     size_t receivedBytes = 0;
     char bufferWriter[BANDWIDTH];
     int fileExe;
     struct sockaddr_in clientIP;
     socklen_t clientIP_size = sizeof(clientIP);
+    char fileName[43];
+
+    /**
+     * Receiving the instruction from the clients and storing it in the file named by
+     * the client's IP and date & time 
+     * 
+     * This function does not execute that instruction but simply put it into the fileExe folder
+     * 
+    */
+
+    memset(fileName, 0, sizeof(fileName));
+    FileExe_naming(fileName, socketfd);
+    printf("fileName is %s\n", fileName);
+
+    /**
+     * This merely create the file but not do any I/O operation.
+    */
+    FILE* bufferFile;
+    if ((bufferFile = fopen(fileName, "w")) == NULL){
+        fprintf(stderr, "Fail to create instruction file %s\n", fileName);
+        exit(EXIT_FAILURE);
+    }
+    fclose(bufferFile);
 
 
-
-
+    /**
+     * This open() open the file descriptor for I/O
+    */
     if ((fileExe = open(fileName, O_WRONLY)) < 0){
-        perror("Cannot open the instruction file to write to\n");
+        perror("Cannot open the instruction file to write to");
         exit(EXIT_FAILURE);
     }
 
