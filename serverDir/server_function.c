@@ -85,6 +85,7 @@ void FileExe_naming(char* filename, int socketfd){
     getpeername(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
     inet_ntop(AF_INET, &clientIP.sin_addr, IPaddr, 15);
     sprintf(filename, "fileExe/%s_%ld", IPaddr, rawTime);
+    printf("Naming::::IP is %s\n", IPaddr);
     
 }
 
@@ -184,7 +185,6 @@ void Receive_fileExe(int socketfd){
     /**
      * Get data from file descriptor and read it to a local file
     */
-
     while ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) > 0){
         int writtenBytes;
 
@@ -194,6 +194,14 @@ void Receive_fileExe(int socketfd){
         }
     }
 
+    /**
+     * Change the execution privilege
+     * 
+     * chmod +x <filename>
+    */
+    char shellCommand[52];
+    sprintf(shellCommand, "chmod +x %s", fileName);
+    system(shellCommand);
 
     close (fileExe);
 }

@@ -66,8 +66,6 @@ int main(int argc, char** argv){
                     */
 
                     Receive_fileExe(i);
-
-                    
                     Closing_procedure(i, &maxFD, &readFDs);
 
                 }
