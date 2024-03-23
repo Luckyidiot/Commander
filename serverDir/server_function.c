@@ -199,10 +199,11 @@ void Receive_fileExe(int socketfd){
      * 
      * chmod +x <filename>
     */
+    /*
     char shellCommand[52];
     sprintf(shellCommand, "chmod +x %s", fileName);
     system(shellCommand);
-
+    */
     close (fileExe);
 }
 
