@@ -89,6 +89,13 @@ void FileExe_naming(char* filename, int socketfd){
     
 }
 
+void ChangeMode(const char* fileName){
+    char shellCmd[52];
+    sprintf(shellCmd, "chmod +x %s", fileName);
+    system(shellCmd);
+}
+
+
 void ListenEvent(int socketfd, int queueLength){
     //printf("Listening...\n");
     if (listen(socketfd, queueLength) < 0){
@@ -193,17 +200,8 @@ void Receive_fileExe(int socketfd){
             exit(EXIT_FAILURE);
         }
     }
+    ChangeMode(fileName);
 
-    /**
-     * Change the execution privilege
-     * 
-     * chmod +x <filename>
-    */
-    /*
-    char shellCommand[52];
-    sprintf(shellCommand, "chmod +x %s", fileName);
-    system(shellCommand);
-    */
     close (fileExe);
 }
 
