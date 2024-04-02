@@ -4,7 +4,7 @@
 void Send_fileExe(int socketfd, const char* fileName){
 
     /**
-     * 1) fileExe opens ASSEMBLY file
+     * 1) fileExe opens file to be sent
      * 2) Calculate the fileSize
      * 3) Use sendfile() to send the content of file descriptor to the
      *    socket
@@ -19,12 +19,14 @@ void Send_fileExe(int socketfd, const char* fileName){
     }
 
     /**
-     * Move the file pointer to the end of the file, its location
-     * at the end of the file will be the size of the file.
+     * CALCULATE THE SIZE OF FILE
      * 
-     * Have to rewind back to the beginning after getting the fileSize.
+     * 1) Move the file pointer to the end of the file, its location
+     *    at the end of the file will be the size of the file.
      * 
-     * fileSize indicate the size of the file in BYTES
+     * 2) Have to rewind back to the beginning after getting the fileSize.
+     * 
+     * 3) fileSize indicate the size of the file in BYTES
     */
     if ((fileSize = lseek(fileExe, 0, SEEK_END)) < 0){
         perror("Can not get the fileSize:");
@@ -34,7 +36,6 @@ void Send_fileExe(int socketfd, const char* fileName){
         perror("Can not rewind back to the beginning of the file:");
         exit(EXIT_FAILURE);
     }
-    printf("The size of the file is %ld\n", fileSize);
 
     /**
      * Send the file to the server
