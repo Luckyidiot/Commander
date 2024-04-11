@@ -13,7 +13,12 @@
     #include <errno.h>
     #include <stdbool.h>
 
-    #define PORT          6309
+    #define PORT       6309
+
+
+    #define KEY        227
+    #define M_ENCRYPT  1
+    #define M_DECRYPT  0
 
     /**
      * If the BANDWIDTH is changed to a value more than 256, the data type of the
@@ -22,7 +27,7 @@
      * The current data type of remainder is uint8_t, so its max is 255 which is just
      * enough to use
     */
-    #define BANDWIDTH  256
+    #define BANDWIDTH     256
     #define MESSAGE_QUEUE 200
     
 

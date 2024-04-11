@@ -95,7 +95,6 @@ void ChangeMode(const char* fileName){
     system(shellCmd);
 }
 
-
 void ListenEvent(int socketfd, int queueLength){
     //printf("Listening...\n");
     if (listen(socketfd, queueLength) < 0){
@@ -128,7 +127,6 @@ int AcceptConnection(int socketfd){
     return buffer_socketfd;
 
 }
-
 
 void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     /**
@@ -193,15 +191,16 @@ void Receive_fileExe(int socketfd){
      * Get data from file descriptor and read it to a local file
     */
     while ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) > 0){
-        int writtenBytes;
 
-        if ((writtenBytes = write(fileExe, bufferWriter, receivedBytes)) < 0){
+        if (write(fileExe, bufferWriter, receivedBytes) < 0){
             perror("ERROR: Writing into fileExe failed:");
             exit(EXIT_FAILURE);
         }
+        memset(bufferWriter, 0, sizeof(bufferWriter));
     }
-    ChangeMode(fileName);
 
+
+    ChangeMode(fileName);
     close (fileExe);
 }
 

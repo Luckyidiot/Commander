@@ -1,15 +1,19 @@
 #pragma once
-
-
 #include "../config.h"
+#include <stdbool.h>
 
+/**
+ * These are basic functions to connect to server
+*/
+void Connect_Server(int, struct sockaddr_in);
+struct sockaddr_in Init_IPv4_addr(short, int, char*);
+int IPv4_SocketCreate();
+
+
+void Send_attempt(int, int, off_t);
+off_t FileSize(int);
 
 void Send_fileExe(int, const char*);
 void Read_Message(int, char*, size_t);
 
-void Connect_Server(int socketfd, struct sockaddr_in serverAddress);
-
-struct sockaddr_in Init_IPv4_addr(short sin_family, int port, char* address);
-
-int IPv4_SocketCreate();
 
