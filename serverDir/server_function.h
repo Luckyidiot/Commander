@@ -13,14 +13,9 @@ void ListenEvent(int, int);
 int AcceptConnection(int);
 void Closing_procedure(int, int*, fd_set*);
 
-/**
- * 
- * Features
-*/
-void FileExe_naming(char*, int);
-void ChangeMode(const char*);
 
-void Receive_fileExe(int);
+
+
 void Write_Message(int, char*);
 
 

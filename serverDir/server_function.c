@@ -69,32 +69,6 @@ int Create_IPv4Server(short sin_family, int port, char* address, int level, int 
     return socketfd;
 }
 
-void FileExe_naming(char* filename, int socketfd){
-    /**
-     * Each client will have an execution file
-     * Those files will be named using their IP address and Date & Time to ensure the uniqueness
-     * 
-     * The IPaddr has the format of AAA.BBB.CCC.DDD at most so it needs 15 elements.
-    */
-    char IPaddr[15];
-    time_t rawTime = time(NULL);
-    struct sockaddr_in clientIP;
-    socklen_t clientIP_size;
-    
-    memset(IPaddr, 0, sizeof(IPaddr));
-    getpeername(socketfd, (struct sockaddr*) &clientIP, &clientIP_size);
-    inet_ntop(AF_INET, &clientIP.sin_addr, IPaddr, 15);
-    sprintf(filename, "fileExe/%s_%ld", IPaddr, rawTime);
-    printf("Naming::::IP is %s\n", IPaddr);
-    
-}
-
-void ChangeMode(const char* fileName){
-    char shellCmd[52];
-    sprintf(shellCmd, "chmod +x %s", fileName);
-    system(shellCmd);
-}
-
 void ListenEvent(int socketfd, int queueLength){
     //printf("Listening...\n");
     if (listen(socketfd, queueLength) < 0){
@@ -138,7 +112,7 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     close(fd);
     FD_CLR(fd, readFDs);
     if (fd == *maxFD){
-        while (FD_ISSET(*maxFD, readFDs) == false){
+        while (FD_ISSET(*maxFD, readFDs) == 0){
             *maxFD -= 1;
         }
     }
@@ -146,64 +120,21 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
     printf("Handled successfully socket %d\n", fd);
 }
 
+void Receive_attempt(int socketFD, int fileDST){
 
-
-void Receive_fileExe(int socketfd){
     size_t receivedBytes = 0;
-    char bufferWriter[BANDWIDTH];
-    int fileExe;
-    struct sockaddr_in clientIP;
-    socklen_t clientIP_size = sizeof(clientIP);
-    char fileName[43];
+    char buffer[BANDWIDTH];
 
-    /**
-     * Receiving the instruction from the clients and storing it in the file named by
-     * the client's IP and date & time 
-     * 
-     * This function does not execute that instruction but simply put it into the fileExe folder
-     * 
-    */
+    while ((receivedBytes = recv(socketFD, buffer, BANDWIDTH, 0)) > 0){
 
-    memset(fileName, 0, sizeof(fileName));
-    FileExe_naming(fileName, socketfd);
-    printf("fileName is %s\n", fileName);
-
-    /**
-     * This merely create the file but not do any I/O operation.
-    */
-    FILE* bufferFile;
-    if ((bufferFile = fopen(fileName, "w")) == NULL){
-        fprintf(stderr, "Fail to create instruction file %s\n", fileName);
-        exit(EXIT_FAILURE);
-    }
-    fclose(bufferFile);
-
-
-    /**
-     * This open() open the file descriptor for I/O
-    */
-    if ((fileExe = open(fileName, O_WRONLY)) < 0){
-        perror("Cannot open the instruction file to write to");
-        exit(EXIT_FAILURE);
-    }
-
-    /**
-     * Get data from file descriptor and read it to a local file
-    */
-    while ((receivedBytes = recv(socketfd, bufferWriter, BANDWIDTH, 0)) > 0){
-
-        if (write(fileExe, bufferWriter, receivedBytes) < 0){
+        if (write(fileDST, buffer, receivedBytes) < 0){
             perror("ERROR: Writing into fileExe failed:");
             exit(EXIT_FAILURE);
         }
-        memset(bufferWriter, 0, sizeof(bufferWriter));
+        memset(buffer, 0, BANDWIDTH);
     }
 
-
-    ChangeMode(fileName);
-    close (fileExe);
 }
-
 
 void Write_Message(int socketfd, char* message){
     if (send(socketfd, message, (strlen(message) + 1), 0) < 0){

@@ -1,5 +1,29 @@
 #include "client_execution.h"
 
+off_t FileSize(int fileFD){
+    /**
+     * TASK: CALCULATE THE SIZE OF FILE
+     * 
+     * 1) Move the file pointer to the end of the file, its location
+     *    at the end of the file will be the size of the file.
+     * 2) Have to rewind back to the beginning after getting the fileSize.
+     * 3) fileSize indicate the size of the file in BYTES
+    */
+
+    off_t fileSize;
+
+    if ((fileSize = lseek(fileFD, 0, SEEK_END)) < 0){
+        perror("Can not get the fileSize:");
+        exit(EXIT_FAILURE);
+    }
+    if (lseek(fileFD, 0, SEEK_SET) < 0){
+        perror("Can not rewind back to the beginning of the file:");
+        exit(EXIT_FAILURE);
+    }
+
+    return fileSize;
+}
+
 int File_CreateOpen(const char* filename, int mode){
     
     int fileExe;
@@ -33,7 +57,7 @@ void Encrypt(char* data, int length, uint8_t key){
 
 void Decrypt(char* data, int length, uint8_t key){
     /**
-     * This encryption is amateur and needs to be changed in the future
+     * This decryption is amateur and needs to be changed in the future
      * 
      * Perform XOR bitwise
     */

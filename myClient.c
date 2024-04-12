@@ -1,6 +1,7 @@
 
-
 #include "clientDir/client_function.h"
+#include "clientDir/interface.h"
+
 
 int main(int argc, char** argv){
     /**
