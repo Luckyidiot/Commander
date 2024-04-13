@@ -1,6 +1,5 @@
 
-#include "serverDir/server_function.h"
-#include "serverDir/server_execution.h"
+#include "serverDir/interface.h"
 
 int main(int argc, char** argv){
     /**
@@ -16,12 +15,15 @@ int main(int argc, char** argv){
     
 
     /**
-     * Start doing the first step :: creating the server
+     * TASK: CREATING THE SERVER
     */
     serverSocket = Create_IPv4Server(AF_INET, PORT, "INADDR_ANY", SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
     maxFD = serverSocket;
     printf("serverSocket: %d\n", serverSocket);
 
+    /**
+     * TASK: SETTING UP THE LISTENER, EVEN THE select()
+    */
     FD_ZERO(&readFDs);
     FD_SET(serverSocket, &readFDs);
     ListenEvent(serverSocket, MESSAGE_QUEUE);
@@ -31,7 +33,7 @@ int main(int argc, char** argv){
      * Loop to wait until the next return of select()
     */
 
-    while (true){
+    while (1){
         bufferFDs = readFDs;
         if (select(maxFD + 1, &bufferFDs, NULL, NULL, NULL) < 0){
             perror("SELECT ERROR:");

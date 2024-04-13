@@ -1,5 +1,7 @@
 #pragma once
 #include "../config.h"
+#include "client_execution.h"
+#include "client_function.h"
 
 void Send_fileExe(int, const char*);
 

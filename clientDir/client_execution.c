@@ -28,12 +28,14 @@ int File_CreateOpen(const char* filename, int mode){
     
     int fileExe;
     if (mode == 1){
+        // M_CREATE
         if ((fileExe = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0){
-            perror("Cannot open fileExe:");
+            perror("Cannot create fileExe:");
             exit(EXIT_FAILURE);
         }
     }
     else {
+        //M_OPEN
         if ((fileExe = open(filename, O_RDONLY)) < 0){
             perror("Cannot open fileExe:");
             exit(EXIT_FAILURE);

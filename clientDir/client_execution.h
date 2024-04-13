@@ -23,6 +23,6 @@ int File_CreateOpen(const char*, int); //pass the Macros M_OPEN or M_CREATE to t
 /**
  * Cryptography
 */
-void DataProcess(int, int, uint8_t, int);
 void Encrypt(char*, int, uint8_t);
 void Decrypt(char*, int, uint8_t);
+void DataProcess(int, int, uint8_t, int);

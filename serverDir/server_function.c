@@ -51,21 +51,12 @@ void BindAddr(int socketfd, struct sockaddr_in addr){
 
 }
 
-int Create_IPv4Server(short sin_family, int port, char* address, int level, int optname, const void* optval, socklen_t optlen){
+int IPv4_SocketCreate(){
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
     if (socketfd < 0){
-        printf("SOCKET ERROR");
+        fprintf(stderr, "Socket creation failed");
         exit(EXIT_FAILURE);
     }
-    /**
-     * struct sockaddr_in serverAddress = Init_IPv4_addr(AF_INET, PORT, "INADDR_ANY");
-    */
-    
-    struct sockaddr_in serverAddress = Init_IPv4_addr(sin_family, port, address);
-    BindAddr(socketfd, serverAddress);
-
-    SetSocket_REUSE(socketfd, level, optname, optval, optlen);
-
     return socketfd;
 }
 

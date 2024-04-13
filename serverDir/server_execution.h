@@ -1,5 +1,6 @@
 #pragma once
 #include "../config.h"
+#include <time.h>
 
 /**
  * Encrypt/Decrypt
@@ -18,14 +19,15 @@
 /**
  * Cryptography
 */
-void DataProcess(int, int, uint8_t, int);
 void Encrypt(char*, int, uint8_t);
 void Decrypt(char*, int, uint8_t);
+void DataProcess(int, int, uint8_t, int);
+
 
 /**
  * Trivial features
 */
-void FileExe_naming(char*, size_t, int);
+void File_naming(char*, size_t, int);
 void ChangeMode(const char*);
 
 /**

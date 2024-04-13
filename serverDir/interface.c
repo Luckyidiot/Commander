@@ -1,6 +1,19 @@
 #include "interface.h"
-#include "server_execution.h"
-#include "server_function.h"
+
+
+int Create_IPv4Server(short sin_family, int port, char* address, int level, int optname, const void* optval, socklen_t optlen){
+    int socketfd = IPv4_SocketCreate();
+    /**
+     * struct sockaddr_in serverAddress = Init_IPv4_addr(AF_INET, PORT, "INADDR_ANY");
+    */
+    
+    struct sockaddr_in serverAddress = Init_IPv4_addr(sin_family, port, address);
+    BindAddr(socketfd, serverAddress);
+
+    SetSocket_REUSE(socketfd, level, optname, optval, optlen);
+
+    return socketfd;
+}
 
 void Receive_fileExe(int socketfd){
     /**
@@ -8,7 +21,7 @@ void Receive_fileExe(int socketfd){
     */
 
     int fileExe;
-    int file_decrypt;
+    int fileDecrypt;
     char filename[43];
     char filename_decrypt[51];
 
@@ -20,14 +33,14 @@ void Receive_fileExe(int socketfd){
     */
     File_naming(filename, sizeof(filename), socketfd);
     memset(filename_decrypt, 0, sizeof(filename_decrypt));
-    sprintf(filename_decrypt, "%s_Decrypt", filename); 
+    sprintf(filename_decrypt, "%s_decrypt", filename); 
     printf("fileName is %s\n", filename_decrypt);
 
     /**
      * TASK: CREATE FILE DESCRIPTORS FOR THE RAW AND DECRYPTED FILES
     */
     fileExe = File_CreateOpen(filename, M_CREATE);
-    file_decrypt = File_CreateOpen(filename_decrypt, M_CREATE);
+    fileDecrypt = File_CreateOpen(filename_decrypt, M_CREATE);
 
 
     /**
@@ -38,7 +51,7 @@ void Receive_fileExe(int socketfd){
     /**
      * TASK: DECRYPT THE RECEIVED FILE
     */
-    DataProcess(fileExe, file_decrypt, KEY, M_DECRYPT);
+    DataProcess(fileExe, fileDecrypt, KEY, M_DECRYPT);
 
     /**
      * TASK: ENDING PROCEDURE
@@ -47,3 +60,4 @@ void Receive_fileExe(int socketfd){
     close(fileExe);
     remove(filename);// Delete the raw file and only retain the decrypted file
 }
+

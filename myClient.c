@@ -1,5 +1,4 @@
 
-#include "clientDir/client_function.h"
 #include "clientDir/interface.h"
 
 
@@ -22,7 +21,7 @@ int main(int argc, char** argv){
     
     Connect_Server(socketfd, serverAddress);
 
-    Send_fileExe(socketfd, "sampleExe");
+    Send_fileExe(socketfd, "message");
 
     close(socketfd);
     return 0;

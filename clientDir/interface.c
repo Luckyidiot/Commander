@@ -1,6 +1,5 @@
 #include "interface.h"
-#include "client_execution.h"
-#include "client_function.h"
+
 
 void Send_fileExe(int socketfd, const char* filename){
 
@@ -13,11 +12,12 @@ void Send_fileExe(int socketfd, const char* filename){
      *    socket
      * 
     */
-    int fileExe_org;
-    int fileExe_encrypt;
-    char* filename_encrypt;
+    int fileOrg;
+    int fileEncrypt;
+    char filename_encrypt[51];
 
     //Label the name of the Encrypted file to be sent
+    memset(filename_encrypt, 0, sizeof(fileEncrypt));
     sprintf(filename_encrypt, "%s_Encrypt", filename); 
 
     /**
@@ -26,8 +26,8 @@ void Send_fileExe(int socketfd, const char* filename){
      * 1) Open the file to be sent
      * 2) Create an empty file for encryption
     */
-    fileExe_org = File_CreateOpen(filename, M_OPEN);
-    fileExe_encrypt = File_CreateOpen(filename, M_CREATE);
+    fileOrg = File_CreateOpen(filename, M_OPEN);
+    fileEncrypt = File_CreateOpen(filename, M_CREATE);
     
     /**
      * TASK: ENCRYPTION
@@ -36,14 +36,14 @@ void Send_fileExe(int socketfd, const char* filename){
      * Encrypt
      * write() to fileExe_encrypt
     */
-    DataProcess(fileExe_org, fileExe_encrypt, KEY, M_ENCRYPT);
+    DataProcess(fileOrg, fileEncrypt, KEY, M_ENCRYPT);
 
     /**
      * TASK: SENDING FILE
      * 
      * Send the file to the server
     */
-    Send_attempt(socketfd, fileExe_encrypt, FileSize(fileExe_encrypt));
+    Send_attempt(socketfd, fileOrg, FileSize(fileOrg));
 
     /**
      * TASK: ENDING procedure
@@ -51,7 +51,7 @@ void Send_fileExe(int socketfd, const char* filename){
      * 1) Close both file descriptors.
      * 2) Delete ecnrypted file.
     */
-    close(fileExe_org);
-    close(fileExe_encrypt);
+    close(fileOrg);
+    close(fileEncrypt);
     remove(filename_encrypt);
 }
