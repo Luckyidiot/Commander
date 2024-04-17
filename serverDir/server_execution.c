@@ -25,10 +25,45 @@ void Decrypt(char* data, int length, uint8_t key){
     }
 }
 
-void DataProcess(int srcFD, int dstFD, uint8_t key, int mode){
-    
+void Cryptography(const char* filename_src, const char* filename_dst, uint8_t enabler, uint8_t mode, int key){
+    /**
+     * TASK: CRYPTOGRAPHY
+     * 
+     * 1) mode (2 options)    :: Select either Encryption or Decryption
+     * M_ENCRYPT
+     * M_DECRYPT
+     * 
+     * 2) enabler (2 options) :: disable or enable the cryptography - mainly used for testing and give more manipulation
+     * ENBLE
+     * DISABLE
+     * 
+     * 
+     * ERROR: PASSING FILE DESCRIPTOR DOES NOT WORK
+     * At first, I passed file descriptors for the src and dst and use them directly for the while() loop.
+     * But the dst file is completely empty, which means it does not work, BUT THE REASONS ARE UNCLEAR.
+     * SOLUTION: PASSING FILE NAME INSTEAD OF DESCRIPTOR
+    */
+
     char buffer[BANDWIDTH];
     size_t readBytes;
+    int srcFD;
+    int dstFD;
+
+    /**
+     * TASK: OPEN THE FILES DEPENDING ON THEIR NAME
+    */
+    srcFD = File_CreateOpen(filename_src, M_OPEN);
+    dstFD = File_CreateOpen(filename_dst, M_OPEN);
+
+    /**
+     * TASK: DISABLE THE KEY
+     * 
+     * The En/De-cryption still happens when it is disabled, but the output is the same
+     * with the input. So nothing really changes.
+    */
+    if (!enabler){
+        key = 0;
+    }
 
     while ((readBytes = read(srcFD, buffer, BANDWIDTH)) > 0){
         
@@ -40,11 +75,14 @@ void DataProcess(int srcFD, int dstFD, uint8_t key, int mode){
         }
 
         if (write(dstFD, buffer, readBytes) < 0){
-            perror("ERROR: Writing into fileExe failed:");
+            perror("ERROR: Server's cryptography fileExe failed:");
             exit(EXIT_FAILURE);
         }
         memset(buffer, 0, sizeof(buffer));
     }
+
+    close(srcFD);
+    close(dstFD);
 }
 
 void File_naming(char* filename, size_t length, int socketfd){
@@ -77,10 +115,25 @@ void File_naming(char* filename, size_t length, int socketfd){
     
 }
 
-void ChangeMode(const char* fileName){
-    char shellCmd[52];
-    sprintf(shellCmd, "chmod +x %s", fileName);
-    system(shellCmd);
+void Change_AccessPermission(const char* filename, int mode){
+    /**
+     * TASK: CHANGE THE PERMISSION
+     *
+    */
+    if (mode){
+        //Executable
+        if (chmod(filename, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) != 0){
+            perror("File's permission is failed");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        //Regular
+        if (chmod(filename, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH) != 0){
+            perror("File's permission is failed");
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 int File_CreateOpen(const char* filename, int mode){
@@ -93,13 +146,13 @@ int File_CreateOpen(const char* filename, int mode){
     int fileExe;
     
     if (mode){
-        if ((fileExe = open(filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0){
+        if ((fileExe = open(filename, O_RDWR | O_CREAT | O_TRUNC)) < 0){
             perror("Cannot create fileExe:");
             exit(EXIT_FAILURE);
         }
     }
     else {
-        if ((fileExe = open(filename, O_RDONLY)) < 0){
+        if ((fileExe = open(filename, O_RDWR)) < 0){
             perror("Cannot open fileExe:");
             exit(EXIT_FAILURE);
         }

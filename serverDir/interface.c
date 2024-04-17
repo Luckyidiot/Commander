@@ -15,12 +15,12 @@ int Create_IPv4Server(short sin_family, int port, char* address, int level, int 
     return socketfd;
 }
 
-void Receive_fileExe(int socketfd){
+void Receive_fileExe(int socketFD, uint8_t cryptoEnabler){
     /**
      * TASK: RECEIVE THE FILE FROM FROM SOCKET
     */
 
-    int fileExe;
+    int fileRaw;
     int fileDecrypt;
     char filename[43];
     char filename_decrypt[51];
@@ -31,33 +31,40 @@ void Receive_fileExe(int socketfd){
      * 
      * The name depends by Date&time and Client IP address
     */
-    File_naming(filename, sizeof(filename), socketfd);
+    File_naming(filename, sizeof(filename), socketFD);
     memset(filename_decrypt, 0, sizeof(filename_decrypt));
     sprintf(filename_decrypt, "%s_decrypt", filename); 
-    printf("fileName is %s\n", filename_decrypt);
 
     /**
      * TASK: CREATE FILE DESCRIPTORS FOR THE RAW AND DECRYPTED FILES
     */
-    fileExe = File_CreateOpen(filename, M_CREATE);
+    fileRaw = File_CreateOpen(filename, M_CREATE);
     fileDecrypt = File_CreateOpen(filename_decrypt, M_CREATE);
-
-
+    
+    /**
+     * TASK: ADD THE ACCESS PERMISSION TO BOTH NEWLY CREATED FILES
+     * 
+     * Because both of these two files were just created by those two command above,
+     * they do not have any access permission. We need to assign to them.
+    */
+    Change_AccessPermission(filename, REG);
+    Change_AccessPermission(filename_decrypt, REG);
+    
     /**
      * TASK: READ THE DATA FROM SOCKET AND WRITE IT TO A FILE
     */
-    Receive_attempt(socketfd, fileExe);
-
+    Receive_attempt(socketFD, fileRaw);
+ 
     /**
      * TASK: DECRYPT THE RECEIVED FILE
     */
-    DataProcess(fileExe, fileDecrypt, KEY, M_DECRYPT);
-
+    Cryptography(filename, filename_decrypt, cryptoEnabler, M_DECRYPT, KEY);
+    
     /**
      * TASK: ENDING PROCEDURE
     */
-    ChangeMode(filename_decrypt);
-    close(fileExe);
+    close(fileRaw);
+    close(fileDecrypt);
     remove(filename);// Delete the raw file and only retain the decrypted file
 }
 

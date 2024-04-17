@@ -3,5 +3,5 @@
 #include "client_execution.h"
 #include "client_function.h"
 
-void Send_fileExe(int, const char*);
+void Send_fileExe(int socketFD, const char* filename, uint8_t cryptoEnabler);
 

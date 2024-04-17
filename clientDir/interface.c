@@ -1,7 +1,7 @@
 #include "interface.h"
 
 
-void Send_fileExe(int socketfd, const char* filename){
+void Send_fileExe(int socketFD, const char* filename, uint8_t cryptoEnabler){
 
     /**
      * TASK: SENDING FILE TO THE SERVER
@@ -27,8 +27,13 @@ void Send_fileExe(int socketfd, const char* filename){
      * 2) Create an empty file for encryption
     */
     fileOrg = File_CreateOpen(filename, M_OPEN);
-    fileEncrypt = File_CreateOpen(filename, M_CREATE);
+    fileEncrypt = File_CreateOpen(filename_encrypt, M_CREATE);
     
+    /**
+     * TASK: Change the encrypted file created
+    */
+    Change_AccessPermission(filename_encrypt, REG);
+
     /**
      * TASK: ENCRYPTION
      * 
@@ -36,14 +41,14 @@ void Send_fileExe(int socketfd, const char* filename){
      * Encrypt
      * write() to fileExe_encrypt
     */
-    DataProcess(fileOrg, fileEncrypt, KEY, M_ENCRYPT);
+    Cryptography(filename, filename_encrypt, cryptoEnabler, M_ENCRYPT, KEY);
 
     /**
      * TASK: SENDING FILE
      * 
      * Send the file to the server
     */
-    Send_attempt(socketfd, fileOrg, FileSize(fileOrg));
+    Send_attempt(socketFD, fileEncrypt, FileSize(fileEncrypt));
 
     /**
      * TASK: ENDING procedure

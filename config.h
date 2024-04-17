@@ -33,7 +33,7 @@
     #include <sys/select.h>
     #include <sys/sendfile.h>
     #include <fcntl.h>
-    
+    #include <sys/stat.h>
     
 #endif
 
