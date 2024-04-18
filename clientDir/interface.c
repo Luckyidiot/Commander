@@ -1,7 +1,7 @@
 #include "interface.h"
 
 
-void Send_fileExe(int socketFD, const char* filename, uint8_t cryptoEnabler){
+void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
 
     /**
      * TASK: SENDING FILE TO THE SERVER

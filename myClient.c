@@ -21,7 +21,7 @@ int main(int argc, char** argv){
     
     Connect_Server(socketfd, serverAddress);
 
-    Send_fileExe(socketfd, "message", ENABLE);
+    Send_file(socketfd, "message", ENABLE);
 
     close(socketfd);
     return 0;

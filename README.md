@@ -1,2 +1,1 @@
-CHange the plan:
-Implement the file Encryption and Decryption
+Send files to surrounding devices within LAN
