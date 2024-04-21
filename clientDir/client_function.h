@@ -14,10 +14,13 @@ int IPv4_SocketCreate();
  * TASK: COMMUNICATION WITH SERVER
 */
 void SendAttempt_files(int socketFD, int fileFD, off_t fileSize, const char* filename);
-void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth);
 void SendAttempt_any(int socketFD, int fileFD, const char* name);
+void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth);
+
+
 /**
  * TASK: SCANNING/RECOGNIZING AVAILABLE DEVICES
 */
 void Signaling(int socketFD);
+void Receive_respon(int socketFD);
 

@@ -110,6 +110,25 @@ void Signaling(int socketFD){
     }
 }
 
+void Receive_respon(int socketFD){
+    char* buffer[BANDWIDTH];
+
+    /*
+    while (recv(socketFD, buffer, BANDWIDTH, 0) > 0){
+
+        if (send(socketFD, buffer, readBytes, 0) < 0){
+            perror("ERROR: Client's cryptography failed");
+            exit(EXIT_FAILURE);
+        }
+        memset(buffer, 0, sizeof(buffer));
+    }
+    if (readBytes == -1){
+        perror("ERROR in SendAttempt_any(): Fail to read to be sent");
+        exit(EXIT_FAILURE);
+    }
+    */
+}
+
 
 
 
