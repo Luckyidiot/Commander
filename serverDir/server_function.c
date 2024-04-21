@@ -113,7 +113,7 @@ void Closing_procedure(int fd, int* maxFD, fd_set* readFDs){
 
 void Receive_attempt(int socketFD, int fileDST){
 
-    size_t receivedBytes = 0;
+    ssize_t receivedBytes = 0;
     char buffer[BANDWIDTH];
 
     while ((receivedBytes = recv(socketFD, buffer, BANDWIDTH, 0)) > 0){

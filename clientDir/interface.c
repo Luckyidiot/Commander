@@ -48,7 +48,7 @@ void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
      * 
      * Send the file to the server
     */
-    Send_attempt(socketFD, fileEncrypt, FileSize(fileEncrypt));
+    SendAttempt_files(socketFD, fileEncrypt, FileSize(fileEncrypt), filename);
 
     /**
      * TASK: ENDING procedure

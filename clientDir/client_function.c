@@ -50,15 +50,11 @@ int IPv4_SocketCreate(){
     return socketfd;
 }
 
-void SendFile_attempt(int socketfd, int fileFD, off_t fileSize){
-    /**
-     * Sending the file
-     * 
-     * TASK: Simply encapsulate the sendfile()
-    */
+void SendAttempt_files(int socketFD, int fileFD, off_t fileSize, const char* filename){
+    
 
     ssize_t sentBytes;
-    if ((sentBytes = sendfile(socketfd, fileFD, NULL, fileSize)) != fileSize){
+    if ((sentBytes = sendfile(socketFD, fileFD, NULL, fileSize)) != fileSize){
         if (sentBytes < 0){
             perror("ERROR in sending file:");
             exit(EXIT_FAILURE);
@@ -68,7 +64,29 @@ void SendFile_attempt(int socketfd, int fileFD, off_t fileSize){
             exit(EXIT_FAILURE);
         }
     }
-    printf("The entire file is sent successfully\n");
+    printf("The entire file %s is sent successfully\n", filename);
+}
+
+void SendAttempt_any(int socketFD, int fileFD, const char* name){
+    
+    ssize_t readBytes = 0;
+    char* buffer[BANDWIDTH];
+
+    while ((readBytes = read(fileFD, buffer, BANDWIDTH)) > 0){
+
+        if (send(socketFD, buffer, readBytes, 0) < 0){
+            perror("ERROR: Client's cryptography failed");
+            exit(EXIT_FAILURE);
+        }
+        memset(buffer, 0, sizeof(buffer));
+    }
+    if (readBytes == -1){
+        perror("ERROR in SendAttempt_any(): Fail to read to be sent");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("File %s was sent successfully\n", name);
+
 }
 
 void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth){
@@ -81,7 +99,6 @@ void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth){
 }
 
 void Signaling(int socketFD){
-
     /**
      * TASK: SENDING A SIGNAL TO EVERY DEVICES WITHIN LAN
     */

@@ -80,6 +80,10 @@ void Cryptography(const char* filename_src, const char* filename_dst, uint8_t en
         }
         memset(buffer, 0, sizeof(buffer));
     }
+    if (readBytes == -1){
+        perror("ERROR: Fail to read the file for cryptography");
+        exit(EXIT_FAILURE);
+    }
 
     close(srcFD);
     close(dstFD);
