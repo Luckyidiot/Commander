@@ -60,3 +60,22 @@ void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
     close(fileEncrypt);
     remove(filename_encrypt);
 }
+
+void Scan_devices(){
+    /**
+     * TASK: SCAN THE AVAILABLE DEVICES WITHIN LAN
+     * 
+     * OBSTACLE: SOCKET USED FOR THE SENDING FILE CANNOT BE USED FOR SCANNING
+    */
+
+    int socketFD;
+    struct sockaddr_in signalAddr;
+
+    socketFD = IPv4_SocketCreate();
+    signalAddr = Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST");
+
+    Establish_connection(socketFD, signalAddr);
+
+    Signaling(socketFD);
+
+}

@@ -5,3 +5,4 @@
 
 void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler);
 
+void Scan_devices();

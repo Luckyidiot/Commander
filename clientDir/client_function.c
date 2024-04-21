@@ -2,7 +2,7 @@
 #include "client_function.h"
 
 
-void Connect_Server(int socketfd, struct sockaddr_in serverAddress){
+void Establish_connection(int socketfd, struct sockaddr_in serverAddress){
     if (connect(socketfd, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) < 0){
         perror("CONNECT: ");
         exit(EXIT_FAILURE);
@@ -50,7 +50,7 @@ int IPv4_SocketCreate(){
     return socketfd;
 }
 
-void Send_attempt(int socketfd, int fileFD, off_t fileSize){
+void SendFile_attempt(int socketfd, int fileFD, off_t fileSize){
     /**
      * Sending the file
      * 
@@ -80,7 +80,18 @@ void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth){
 
 }
 
+void Signaling(int socketFD){
 
+    /**
+     * TASK: SENDING A SIGNAL TO EVERY DEVICES WITHIN LAN
+    */
+    int message = SIGNAL;
+    
+    if (send(socketFD, &message, sizeof(message), 0) < 0){
+        perror("ERROR: Fail to signal");
+        exit(EXIT_FAILURE);
+    }
+}
 
 
 

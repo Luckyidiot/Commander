@@ -11,19 +11,19 @@ int main(int argc, char** argv){
      * ./client 127.0.0.1
     */
 
-    int socketfd;
+    int socketFD;
     struct sockaddr_in serverAddress;
 
 
-    socketfd = IPv4_SocketCreate();
+    socketFD = IPv4_SocketCreate();
     serverAddress = Init_IPv4_addr(AF_INET, PORT, argv[1]);
 
     
-    Connect_Server(socketfd, serverAddress);
+    Establish_connection(socketFD, serverAddress);
 
-    Send_file(socketfd, "message", ENABLE);
+    Send_file(socketFD, "message", ENABLE);
 
-    close(socketfd);
+    close(socketFD);
     return 0;
 
 }

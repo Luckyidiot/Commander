@@ -40,3 +40,5 @@ void Change_AccessPermission(const char* filename, int mode);
 void Encrypt(char* data, int length, uint8_t key);
 void Decrypt(char* data, int length, uint8_t key);
 void Cryptography(const char* filename_src, const char* filename_dst, uint8_t enabler, uint8_t mode, int key);
+
+

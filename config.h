@@ -13,6 +13,15 @@
 
 
 /**
+ * TASK: SCANNING SURROUNDING DEVICES
+ * 
+ * The client will send the SIGNAL to the broadcast addr. If the server
+ * is ready to receive, it will send back the RESPON.
+*/
+#define SIGNAL 27
+#define RESPON 36
+
+/**
  * TASK: used for establishing conenction
 */
 #define PORT          6309

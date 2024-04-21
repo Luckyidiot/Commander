@@ -134,4 +134,13 @@ void Write_Message(int socketfd, char* message){
     }
 }
 
+void Responding(int socketFD){
+    int message = RESPON;
+
+    if (send(socketFD, &message, sizeof(message), 0) < 0){
+        perror("ERROR: Fail to respond");
+        exit(EXIT_FAILURE);
+    }
+}
+
 
