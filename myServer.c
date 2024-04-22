@@ -65,8 +65,9 @@ int main(int argc, char** argv){
                      * The file descriptor is ready to be handle 
                      * 
                     */
+                    //Receive_fileExe(i, ENABLE);
 
-                    Receive_fileExe(i, ENABLE);
+                    Write_Message(i, "HelloQuan");
                     Closing_procedure(i, &maxFD, &readFDs);
 
                 }

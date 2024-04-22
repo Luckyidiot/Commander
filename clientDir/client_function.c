@@ -1,6 +1,6 @@
 
 #include "client_function.h"
-
+#include <signal.h>
 
 void Establish_connection(int socketfd, struct sockaddr_in serverAddress){
     if (connect(socketfd, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) < 0){
@@ -111,9 +111,18 @@ void Signaling(int socketFD){
 }
 
 void Receive_respon(int socketFD){
-    char* buffer[BANDWIDTH];
 
     /*
+    char* buffer[BANDWIDTH];
+    volatile sig_atomic_t terminate = 0;
+    void ScanningTermination(int signum){
+        terminate = 1;
+    }
+
+    signal(SIGALRM, handler);
+    alarm(10);
+
+    
     while (recv(socketFD, buffer, BANDWIDTH, 0) > 0){
 
         if (send(socketFD, buffer, readBytes, 0) < 0){

@@ -11,6 +11,7 @@ int main(int argc, char** argv){
      * ./client 127.0.0.1
     */
 
+    /*
     int socketFD;
     struct sockaddr_in serverAddress;
 
@@ -24,6 +25,9 @@ int main(int argc, char** argv){
     Send_file(socketFD, "message", ENABLE);
 
     close(socketFD);
+    */
+
+    Scan_devices();
     return 0;
 
 }

@@ -69,13 +69,40 @@ void Scan_devices(){
     */
 
     int socketFD;
+    char buffer[BANDWIDTH];
     struct sockaddr_in signalAddr;
+    fd_set readFDs;
+    struct timeval timeout;
+    int status;
+
 
     socketFD = IPv4_SocketCreate();
     signalAddr = Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST");
+
+    FD_ZERO(&readFDs);
+    FD_SET(socketFD, &readFDs);
+
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
 
     Establish_connection(socketFD, signalAddr);
 
     Signaling(socketFD);
 
+    if ((status = select(1, &readFDs, NULL, NULL, &timeout)) < 0){
+        perror("SELECT ERROR:");
+        exit(EXIT_FAILURE);
+    }
+    if (status == 0){
+        printf("Scanning timeout\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Respon received\n");
+    
+    if (recv(socketFD, buffer, BANDWIDTH, 0) < 0){
+        perror("READ MESSAGE: ");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("%s received", buffer);
 }
