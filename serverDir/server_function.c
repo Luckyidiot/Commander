@@ -2,13 +2,13 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
-void SetSocket_REUSE(int sockfd, int level, int optname, const void* optval, socklen_t optlen){
 
-    if (setsockopt(sockfd, level, optname, optval, optlen) < 0){
-        perror("Set socket opt: ");
+void Socket_modify(const int en, int socketFD, int option){
+
+    if (setsockopt(socketFD, SOL_SOCKET, option, &en, sizeof(en)) < 0){
+        perror("ERROR in Setting socket");
         exit(EXIT_FAILURE);
     }
-
 }
 
 struct sockaddr_in Init_IPv4_addr(short sin_family, int port, char* address){
@@ -51,10 +51,10 @@ void BindAddr(int socketfd, struct sockaddr_in addr){
 
 }
 
-int IPv4_SocketCreate(){
-    int socketfd = socket(PF_INET, SOCK_STREAM, 0);
+int IPv4_SocketCreate(int proctocol){
+    int socketfd = socket(PF_INET, proctocol, 0);
     if (socketfd < 0){
-        fprintf(stderr, "Socket creation failed");
+        perror("ERROR in SOCKET CREATION");
         exit(EXIT_FAILURE);
     }
     return socketfd;
@@ -134,13 +134,55 @@ void Write_Message(int socketfd, char* message){
     }
 }
 
-void Responding(int socketFD){
-    int message = RESPON;
+void ReceiveAttempt_message(int protocol, int socketFD, char* recvMessage, size_t bandWidth, struct sockaddr_in* IP_src){
+    /**
+     * TASK: RECEIVING message
+     * 
+     * Depending on the protocol, the function will use different receiving mechanics
+    */
 
-    if (send(socketFD, &message, sizeof(message), 0) < 0){
-        perror("ERROR: Fail to respond");
+    if (protocol == TCP){
+        if (recv(socketFD, recvMessage, bandWidth, 0) < 0){
+            perror("READ MESSAGE: ");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (protocol == UDP) {
+        socklen_t addrSize = sizeof(struct sockaddr);
+        if (recvfrom(socketFD, recvMessage, bandWidth, 0, (struct sockaddr*) IP_src, &addrSize) < 0){
+            perror("ERROR UDP:");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        fprintf(stderr, "Specified protocol is not supported for RECEIVING\n");
         exit(EXIT_FAILURE);
     }
+
 }
 
+void SendAttempt_message(int protocol, int socketFD, const char* message, struct sockaddr_in* IP_dst){
+    /**
+     * TASK: SENDING message
+     * 
+     * Depending on the protocol, the function will use different sending mechanics
+    */
 
+    if (protocol == TCP){
+        if (send(socketFD, message, (strlen(message) + 1), 0) < 0){
+            perror("ERROR TCP:");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (protocol == UDP){
+        if (sendto(socketFD, message, (strlen(message) + 1), 0, (struct sockaddr*) IP_dst, sizeof(struct sockaddr)) < 0){
+            perror("ERROR UDP:");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        fprintf(stderr, "Specified protocol is not supported for SENDING\n");
+        exit(EXIT_FAILURE);
+    }
+    
+}

@@ -1,5 +1,5 @@
 #include "interface.h"
-
+#include <signal.h>
 
 void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
 
@@ -67,42 +67,54 @@ void Scan_devices(){
      * 
      * OBSTACLE: SOCKET USED FOR THE SENDING FILE CANNOT BE USED FOR SCANNING
     */
-
-    int socketFD;
-    char buffer[BANDWIDTH];
-    struct sockaddr_in signalAddr;
+    int socketFD, maxFD, status;
+    struct sockaddr_in scanIP, detectedIPs;
     fd_set readFDs;
     struct timeval timeout;
-    int status;
+    char buffer[3];
+    const char message[3] = "27";
 
 
-    socketFD = IPv4_SocketCreate();
-    signalAddr = Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST");
+    /**
+     * TASK: INIT CRUCIAL VARIABLES :: socket and address
+     * 
+     * 1) socket must be modified to be able to send Broadcast IP
+    */
+    socketFD = IPv4_SocketCreate(UDP);
+    Socket_modify(1, socketFD, SO_BROADCAST);
+    scanIP = Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST");
 
+    /**
+     * TASK: INIT NECESSARY ADDITIONAL VARIABLES
+     * 
+     * 1) readFDs, select(), timeout, and maxFD are used to limit the amount of time scanning is going
+     *    to wait for responding. 
+    */
     FD_ZERO(&readFDs);
     FD_SET(socketFD, &readFDs);
-
-    timeout.tv_sec = 10;
+    timeout.tv_sec = 5;
     timeout.tv_usec = 0;
-
-    Establish_connection(socketFD, signalAddr);
-
-    Signaling(socketFD);
-
-    if ((status = select(1, &readFDs, NULL, NULL, &timeout)) < 0){
-        perror("SELECT ERROR:");
-        exit(EXIT_FAILURE);
-    }
-    if (status == 0){
-        printf("Scanning timeout\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Respon received\n");
+    maxFD = socketFD + 1;
     
-    if (recv(socketFD, buffer, BANDWIDTH, 0) < 0){
-        perror("READ MESSAGE: ");
-        exit(EXIT_FAILURE);
-    }
+    SendAttempt_message(UDP, socketFD, message, &scanIP);
 
-    printf("%s received", buffer);
+    printf("Scanning...\n");
+    while(1){
+        if ((status = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
+            if (status == 0){
+                fprintf(stdout, "SCANNING TIMEOUT\n");
+                return;
+            }
+            else {
+                perror("SELECT ERROR:");
+                exit(EXIT_FAILURE);
+            }
+        }
+        printf("Select() return\n");
+        ReceiveAttempt_message(UDP, socketFD, buffer, 3, &detectedIPs);
+        printf("%s\n", buffer);
+        memset(buffer, 0, 3);
+    }
+    printf("Finish scanning\n");
+    
 }

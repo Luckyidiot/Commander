@@ -41,13 +41,21 @@ struct sockaddr_in Init_IPv4_addr(short sin_family, int port, char* address){
     return addr;
 }
 
-int IPv4_SocketCreate(){
-    int socketfd = socket(PF_INET, SOCK_STREAM, 0);
+int IPv4_SocketCreate(int proctocol){
+    int socketfd = socket(PF_INET, proctocol, 0);
     if (socketfd < 0){
         fprintf(stderr, "Socket creation failed");
         exit(EXIT_FAILURE);
     }
     return socketfd;
+}
+
+void Socket_modify(const int en, int socketFD, int option){
+
+    if (setsockopt(socketFD, SOL_SOCKET, option, &en, sizeof(en)) < 0){
+        perror("Set socket opt: ");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void SendAttempt_files(int socketFD, int fileFD, off_t fileSize, const char* filename){
@@ -89,53 +97,57 @@ void SendAttempt_any(int socketFD, int fileFD, const char* name){
 
 }
 
-void Read_Message(int buffer_socketfd, char* recvMessage, size_t bandWidth){
-
-    if (recv(buffer_socketfd, recvMessage, bandWidth, 0) < 0){
-        perror("READ MESSAGE: ");
-        exit(EXIT_FAILURE);
-    }
-
-}
-
-void Signaling(int socketFD){
+void SendAttempt_message(int protocol, int socketFD, const char* message, struct sockaddr_in* IP_dst){
     /**
-     * TASK: SENDING A SIGNAL TO EVERY DEVICES WITHIN LAN
+     * TASK: SENDING message
+     * 
+     * Depending on the protocol, the function will use different sending mechanics
     */
-    int message = SIGNAL;
-    
-    if (send(socketFD, &message, sizeof(message), 0) < 0){
-        perror("ERROR: Fail to signal");
-        exit(EXIT_FAILURE);
-    }
-}
 
-void Receive_respon(int socketFD){
-
-    /*
-    char* buffer[BANDWIDTH];
-    volatile sig_atomic_t terminate = 0;
-    void ScanningTermination(int signum){
-        terminate = 1;
-    }
-
-    signal(SIGALRM, handler);
-    alarm(10);
-
-    
-    while (recv(socketFD, buffer, BANDWIDTH, 0) > 0){
-
-        if (send(socketFD, buffer, readBytes, 0) < 0){
-            perror("ERROR: Client's cryptography failed");
+    if (protocol == TCP){
+        if (send(socketFD, message, (strlen(message) + 1), 0) < 0){
+            perror("ERROR TCP:");
             exit(EXIT_FAILURE);
         }
-        memset(buffer, 0, sizeof(buffer));
     }
-    if (readBytes == -1){
-        perror("ERROR in SendAttempt_any(): Fail to read to be sent");
+    else if (protocol == UDP){
+        if (sendto(socketFD, message, (strlen(message) + 1), 0, (struct sockaddr*) IP_dst, sizeof(struct sockaddr)) < 0){
+            perror("ERROR UDP:");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        fprintf(stderr, "Specified protocol is not supported for SENDING\n");
         exit(EXIT_FAILURE);
     }
+    
+}
+
+void ReceiveAttempt_message(int protocol, int socketFD, char* recvMessage, size_t bandWidth, struct sockaddr_in* IP_src){
+    /**
+     * TASK: RECEIVING message
+     * 
+     * Depending on the protocol, the function will use different receiving mechanics
     */
+
+    if (protocol == TCP){
+        if (recv(socketFD, recvMessage, bandWidth, 0) < 0){
+            perror("READ MESSAGE: ");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if (protocol == UDP) {
+        socklen_t addrSize = sizeof(struct sockaddr);
+        if (recvfrom(socketFD, recvMessage, bandWidth, 0, (struct sockaddr*) IP_src, &addrSize) < 0){
+            perror("ERROR UDP:");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        fprintf(stderr, "Specified protocol is not supported for RECEIVING\n");
+        exit(EXIT_FAILURE);
+    }
+
 }
 
 

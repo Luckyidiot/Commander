@@ -22,6 +22,12 @@
 #define RESPON 36
 
 /**
+ * TASK: ENCAPSULATE THE NAMES WITH MORE SPECIFIC AND COMMON NAMES
+*/
+#define TCP SOCK_STREAM
+#define UDP SOCK_DGRAM
+
+/**
  * TASK: used for establishing conenction
 */
 #define PORT          6309
@@ -35,7 +41,6 @@
 #endif
 
 #ifdef __unix__
-    
     #include <sys/socket.h>
     #include <arpa/inet.h>
     #include <netinet/in.h>
