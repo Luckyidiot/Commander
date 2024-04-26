@@ -2,6 +2,7 @@
 #include "client_function.h"
 #include <signal.h>
 
+
 void Establish_connection(int socketfd, struct sockaddr_in serverAddress){
     if (connect(socketfd, (struct sockaddr*) &serverAddress, sizeof(serverAddress)) < 0){
         perror("CONNECT: ");

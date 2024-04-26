@@ -1,5 +1,6 @@
 #include "client_execution.h"
 
+
 off_t FileSize(int fileFD){
     /**
      * TASK: CALCULATE THE SIZE OF FILE
@@ -153,3 +154,8 @@ void Cryptography(const char* filename_src, const char* filename_dst, uint8_t en
     close(srcFD);
     close(dstFD);
 }
+
+void Notifier_alarm(int signum){
+    terminate = 0;
+}
+

@@ -4,3 +4,4 @@
 
 int Create_IPv4Server(short sin_family, int port, char* address, const int en, int protocol, int option);
 void Receive_fileExe(int socketFD, uint8_t cryptoEnabler);
+void Respond_signal();

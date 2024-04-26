@@ -71,6 +71,7 @@ void Scan_devices(){
     struct sockaddr_in scanIP, detectedIPs;
     fd_set readFDs;
     struct timeval timeout;
+    pid_t asyncID;
     char buffer[3];
     const char message[3] = "27";
 
@@ -96,25 +97,44 @@ void Scan_devices(){
     timeout.tv_usec = 0;
     maxFD = socketFD + 1;
     
-    SendAttempt_message(UDP, socketFD, message, &scanIP);
-
-    printf("Scanning...\n");
-    while(1){
-        if ((status = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
-            if (status == 0){
-                fprintf(stdout, "SCANNING TIMEOUT\n");
-                return;
-            }
-            else {
-                perror("SELECT ERROR:");
-                exit(EXIT_FAILURE);
-            }
+    /**
+     * TASK: SCANNING AVAIL DEVICES
+     * 
+     * 1) Send signal to all devices within LAN only.
+     * 2) Get all the responses and record their IP.
+     * 3) If there is no new upcoming response in 5 secs, the function returns.
+    */
+    
+    asyncID = fork();
+    if (asyncID == 0){
+        signal(SIGALRM, Notifier_alarm);
+        alarm(5);
+        while (terminate){
+            SendAttempt_message(UDP, socketFD, message, &scanIP);
+            printf("Scanning...\n");
+            sleep(1);
         }
-        printf("Select() return\n");
-        ReceiveAttempt_message(UDP, socketFD, buffer, 3, &detectedIPs);
-        printf("%s\n", buffer);
-        memset(buffer, 0, 3);
+        terminate = 1;
     }
-    printf("Finish scanning\n");
+    else {
+    
+        while(1){
+            if ((status = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
+                if (status == 0){
+                    fprintf(stdout, "SCANNING TIMEOUT\n");
+                    return;
+                }
+                else {
+                    perror("SELECT ERROR:");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            printf("Response coming\n");
+            ReceiveAttempt_message(UDP, socketFD, buffer, 3, &detectedIPs);
+            printf("%s\n", buffer);
+            memset(buffer, 0, 3);
+        }
+        printf("Finish scanning\n");
+    }
     
 }
