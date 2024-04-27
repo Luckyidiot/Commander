@@ -155,7 +155,5 @@ void Cryptography(const char* filename_src, const char* filename_dst, uint8_t en
     close(dstFD);
 }
 
-void Notifier_alarm(int signum){
-    terminate = 0;
-}
+
 

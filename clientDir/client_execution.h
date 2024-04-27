@@ -42,8 +42,3 @@ void Encrypt(char* data, int length, uint8_t key);
 void Decrypt(char* data, int length, uint8_t key);
 void Cryptography(const char* filename_src, const char* filename_dst, uint8_t enabler, uint8_t mode, int key);
 
-/**
- * TASK: SIGNAL INTERUPTION
-*/
-volatile __sig_atomic_t terminate = 1;
-void Notifier_alarm(int signum);
