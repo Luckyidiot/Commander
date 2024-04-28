@@ -1,5 +1,5 @@
 #include "interface.h"
-#include <signal.h>
+
 
 void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
 
@@ -61,20 +61,69 @@ void Send_file(int socketFD, const char* filename, uint8_t cryptoEnabler){
     remove(filename_encrypt);
 }
 
+void Get_availDevices(int socketFD, struct timeval timeout, struct sockaddr_in* IPs_list, char* deviceNames_list){
+    /**
+     * TASK: READ THE INCOMING RESPONSES, RECORD THEIR NAMES AND IP.
+     * 
+     * 1) select() will expire after an amount of time specified by timeout, regardless of the loop
+     * 2) char* deviceNames_list :: the pointer to the first element in the two dimentional array,
+     *    deviceNames_list[LST_OFFSET][MAR_CHAR];
+    */
+
+    int terminate, maxFD;
+    fd_set readFDs;
+
+
+    FD_ZERO(&readFDs);
+    FD_SET(socketFD, &readFDs);
+    maxFD = socketFD + 1;
+
+
+    for (int i = 0; i < LST_OFFSET; i++){
+        if ((terminate = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
+            if (terminate == 0){
+                fprintf(stdout, "SCANNING TIMEOUT\n");
+                break;
+            }
+            else {
+                perror("SELECT ERROR:");
+                exit(EXIT_FAILURE);
+            }
+        }
+        ReceiveAttempt_message(UDP, socketFD, deviceNames_list, MAX_CHAR, IPs_list);
+        IPs_list += 1;
+        deviceNames_list += MAX_CHAR;
+    }
+    printf("Finish scanning\n");
+}
+
+void Signaling(int socketFD, const char* message, struct sockaddr_in scanIP){
+    /**
+     * TASK: Sending signal to the aim machine to connect to using UDP
+     * PROTOCOL: UDP
+     * 
+     * NOTE: If you want to perform scanning mechanics like a rada, pass Broadcast address
+     * with Init_IPv4_addr() into scanIP
+     * 
+    */
+    while (1){
+        SendAttempt_message(UDP, socketFD, message, &scanIP);
+        printf("Scanning...\n");
+        sleep(1);
+    }
+}
+
 void Scan_devices(){
     /**
      * TASK: SCAN THE AVAILABLE DEVICES WITHIN LAN
      * 
      * OBSTACLE: SOCKET USED FOR THE SENDING FILE CANNOT BE USED FOR SCANNING
     */
-    int socketFD, maxFD, terminate;
-    struct sockaddr_in scanIP, detectedIPs;
-    fd_set readFDs;
+    int socketFD;
     struct timeval timeout;
     pid_t asyncID;
-    char buffer[3];
-    const char message[3] = "27";
-
+    struct sockaddr_in IPs_list[LST_OFFSET];
+    char deviceNames_list[LST_OFFSET][MAX_CHAR];
 
     /**
      * TASK: INIT CRUCIAL VARIABLES :: socket and address
@@ -83,19 +132,17 @@ void Scan_devices(){
     */
     socketFD = IPv4_SocketCreate(UDP);
     Socket_modify(1, socketFD, SO_BROADCAST);
-    scanIP = Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST");
 
     /**
-     * TASK: INIT NECESSARY ADDITIONAL VARIABLES
+     * TASK: INIT/FREE NECESSARY ADDITIONAL VARIABLES
      * 
      * 1) readFDs, select(), timeout, and maxFD are used to limit the amount of time scanning is going
      *    to wait for responding. 
     */
-    FD_ZERO(&readFDs);
-    FD_SET(socketFD, &readFDs);
-    timeout.tv_sec = 10;
+    memset(IPs_list, 0, LST_OFFSET);
+    memset(&deviceNames_list[0][0], 0, LST_OFFSET * MAX_CHAR);
+    timeout.tv_sec = 5;
     timeout.tv_usec = 0;
-    maxFD = socketFD + 1;
     
     /**
      * TASK: SCANNING AVAIL DEVICES
@@ -108,73 +155,12 @@ void Scan_devices(){
     asyncID = fork();
     if (asyncID == 0){
         signal(SIGTERM, SIG_DFL);
-        while (1){
-            SendAttempt_message(UDP, socketFD, message, &scanIP);
-            printf("Scanning...\n");
-            sleep(2);
-        }
+        Signaling(socketFD, "27", Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST"));
         
     }
     else {
-        while (1){
-            if ((terminate = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
-                if (terminate == 0){
-                    fprintf(stdout, "SCANNING TIMEOUT\n");
-                    break;
-                }
-                else {
-                    perror("SELECT ERROR:");
-                    exit(EXIT_FAILURE);
-                }
-            }
-            printf("Response coming\n");
-            ReceiveAttempt_message(UDP, socketFD, buffer, 3, &detectedIPs);
-            printf("%s\n", buffer);
-            memset(buffer, 0, 3);
-        }
+        Get_availDevices(socketFD, timeout, IPs_list, &deviceNames_list[0][0]);
         kill(asyncID, SIGTERM);
-        printf("Finish scanning\n");
     }
     
 }
-
-void Get_availDevices(int socketFD, struct timeval timeout, struct sockaddr_in* IPs_list, char** deviceNames_list ){
-    int terminate;
-    int maxFD;
-    fd_set readFDs;
-    char deviceName[BANDWIDTH];
-    struct sockaddr_in detectedIP;
-
-
-    FD_ZERO(&readFDs);
-    FD_SET(socketFD, &readFDs);
-    maxFD = socketFD + 1;
-    memset(deviceName, 0, BANDWIDTH);
-
-
-    while (1){
-        if ((terminate = select(maxFD, &readFDs, NULL, NULL, &timeout)) <= 0){
-            if (terminate == 0){
-                fprintf(stdout, "SCANNING TIMEOUT\n");
-                break;
-            }
-            else {
-                perror("SELECT ERROR:");
-                exit(EXIT_FAILURE);
-            }
-        }
-        printf("Response coming\n");
-        ReceiveAttempt_message(UDP, socketFD, deviceName, BANDWIDTH, &detectedIP);
-        
-        //Add the detected IP to list
-        
-        memset(deviceName, 0, BANDWIDTH);
-    }
-        
-    printf("Finish scanning\n");
-}
-
-void AsyncExecution(){
-
-}
-

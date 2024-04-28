@@ -22,6 +22,6 @@ void ReceiveAttempt_message(int protocol, int socketFD, char* recvMessage, size_
 /**
  * TASK: SCANNING/RECOGNIZING AVAILABLE DEVICES
 */
-void Signaling(int socketFD);
+
 void Receive_respon(int socketFD);
 
