@@ -6,7 +6,7 @@ SERVER_DIR = serverDir
 CLIENT_MAIN = myClient.c
 SERVER_MAIN = myServer.c
 
-CLIENT_EXTERN = client_function.c client_execution.c interface.c
+CLIENT_EXTERN = client_function.c client_execution.c interface.c middle_interface.c
 SERVER_EXTERN = server_function.c server_execution.c interface.c
 
 CLIENT_SRC = $(foreach var,$(CLIENT_EXTERN),$(CLIENT_DIR)/$(var)) $(CLIENT_MAIN)

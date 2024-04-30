@@ -71,20 +71,35 @@ void Receive_fileExe(int socketFD, uint8_t cryptoEnabler){
 }
 
 void Respond_signal(){
-    char buffer[3];
+
+    /**
+     * TASK: RESPOND TO THE SIGNAL RECEIVE FROM THE CLIENT TO NOTIFY THAT YOU'RE READY TO GET THE FILE
+     * 
+    */
+    char request[DATA_WIDTH];
     fd_set readFDs;
     int serverSocket, maxFD;
     struct sockaddr_in clientIP;
-    const char repsond[3] = "36";
+    char repsond[DATA_WIDTH];
 
+/*------------------------------------------------------------------------------------------------*/
 
+    /**
+     * TASK: INIT SOME VARIABLES
+    */
     serverSocket = Create_IPv4Server(AF_INET, PORT, "INADDR_ANY", 1, UDP, SO_REUSEADDR);
     maxFD = serverSocket + 1;
-    printf("serverSocket: %d\n", serverSocket);
-
     FD_ZERO(&readFDs);
     FD_SET(serverSocket, &readFDs);
 
+/*------------------------------------------------------------------------------------------------*/
+
+    /**
+     * TASK: HANDLE THE REQUEST AND RESPOND BACK
+     * 
+     * . Wait until there is a request
+     * . Type the message you want to send back to the client
+    */
     while (1){
         printf("Waiting for connection...\n");
         
@@ -94,9 +109,22 @@ void Respond_signal(){
         }
         printf("select() returns\n");
         
-        ReceiveAttempt_message(UDP, serverSocket, buffer, 3, &clientIP);
-        printf("%s\n", buffer);
 
+        ReceiveAttempt_message(UDP, serverSocket, request, DATA_WIDTH, &clientIP);
+
+/*------------------------------------------------------------------------------------------------*/
+
+        /**
+         * TASK: INIT THE MESSAGE
+         * 
+         * get the input from the user
+        */
+        printf("### The client's request is: %s\n", request);
+        printf("### Your respond (maximum %d characters) is: ", (DATA_WIDTH - 1));
+        scanf("%6s", repsond);
+        memset(&repsond[DATA_WIDTH - 1], 0, 1);
+
+/*------------------------------------------------------------------------------------------------*/
         
         SendAttempt_message(UDP, serverSocket, repsond, &clientIP);
         

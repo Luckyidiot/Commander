@@ -16,13 +16,14 @@ void Signaling(int socketFD, const char* message, struct sockaddr_in scanIP){
     }
 }
 
-void Get_availDevices(int socketFD, struct timeval timeout, struct sockaddr_in* IPs_list, char* deviceNames_list){
+void Get_availDevices(int socketFD, struct timeval timeout, struct sockaddr_in* IPs_list, char* responses_list, size_t dataWidth){
     /**
      * TASK: READ THE INCOMING RESPONSES, RECORD THEIR NAMES AND IP.
+     * NOTE: THE LAST ELEMENTS OF responses_list 2D ARRAY ARE NULL \0
      * 
      * 1) select() will expire after an amount of time specified by timeout, regardless of the loop
-     * 2) char* deviceNames_list :: the pointer to the first element in the two dimentional array,
-     *    deviceNames_list[LST_OFFSET][MAR_CHAR];
+     * 2) char* responses_list :: the pointer to the first element in the two dimentional array,
+     *    responses_list[LST_OFFSET][MAR_CHAR];
     */
 
     int terminate, maxFD;
@@ -45,9 +46,9 @@ void Get_availDevices(int socketFD, struct timeval timeout, struct sockaddr_in* 
                 exit(EXIT_FAILURE);
             }
         }
-        ReceiveAttempt_message(UDP, socketFD, deviceNames_list, MAX_CHAR, IPs_list);
+        ReceiveAttempt_message(UDP, socketFD, responses_list, (dataWidth - 1), IPs_list);
         IPs_list += 1;
-        deviceNames_list += MAX_CHAR;
+        responses_list += dataWidth; // Plus 1 because the final element in the array is \0
     }
     printf("Finish scanning\n");
 }
