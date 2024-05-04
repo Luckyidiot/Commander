@@ -71,9 +71,12 @@ void Scan_devices(){
     int socketFD;
     struct timeval timeout;
     pid_t asyncID;
-    char credentialMessage[DATA_WIDTH]; // It can only contain 6 characters in reality, because the final element must be null terminator \0
+    char request[DATA_WIDTH]; // It can only contain 6 characters in reality, because the final element must be null terminator \0
+    /*
     struct sockaddr_in IPs_list[LST_OFFSET];
     char responses_list[LST_OFFSET][DATA_WIDTH];
+    */
+    struct deviceInfo record[LST_OFFSET];
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -84,6 +87,8 @@ void Scan_devices(){
     */
     socketFD = IPv4_SocketCreate(UDP);
     Socket_modify(1, socketFD, SO_BROADCAST);
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -95,12 +100,13 @@ void Scan_devices(){
     */
 
     printf("What is your message for identifying your receiver(s)? (Maximum %d characters): ", (DATA_WIDTH - 1));
-    scanf("%6s", credentialMessage);
-    memset(&credentialMessage[DATA_WIDTH - 1], 0, 1);
+    scanf("%6s", request);
+    memset(&request[DATA_WIDTH - 1], 0, 1);
+    /*
     memset(IPs_list, 0, (LST_OFFSET * sizeof(struct sockaddr_in)));
     memset(&responses_list[0][0], 0, LST_OFFSET * DATA_WIDTH);
-    timeout.tv_sec = 10;
-    timeout.tv_usec = 0;
+    */
+    memset(&record[0], 0, (LST_OFFSET * sizeof(struct deviceInfo)));
     
 /*------------------------------------------------------------------------------------------------*/    
 
@@ -119,19 +125,18 @@ void Scan_devices(){
         // Sending signal and credentialMessage to server
 
         signal(SIGTERM, SIG_DFL);
-        Signaling(socketFD, credentialMessage, Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST"));
+        Signaling(socketFD, request, Init_IPv4_addr(AF_INET, PORT, "INADDR_BROADCAST"));
     }
     else {
         // Get the servers' info
 
-        Get_availDevices(socketFD, timeout, IPs_list, &responses_list[0][0], DATA_WIDTH);
+        Get_availDevices(socketFD, timeout, record, DATA_WIDTH);
         kill(asyncID, SIGTERM);
     }
     
-
     for (int i = 0; i < LST_OFFSET; i++){
-        printf("Response is %s\n", responses_list[i]);
+        printf ("IP: %15s, response: %6s\n", record[i].IPaddr, record[i].response);
     }
-
+    
     close(socketFD);
 }

@@ -22,7 +22,8 @@
  *      2) Scan_devices()   in  clientDir/interface.c
 */
 #define LST_OFFSET 20 // Max numbers of devices that can be recorded at once :: May be scanned multiple times
-#define DATA_WIDTH  7    // Max numbers of characters for device's name :: User will specify
+#define DATA_WIDTH 7    // Max numbers of characters for device's name :: User will specify
+#define IP_WIDTH   16 
 
 /**
  * TASK: ENCAPSULATE THE NAMES WITH MORE SPECIFIC AND COMMON NAMES
